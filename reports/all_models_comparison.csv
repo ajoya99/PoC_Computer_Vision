@@ -1,0 +1,16 @@
+model,run_name,architecture,phase,fraction,epochs,imgsz,batch,split,precision,recall,mAP50,mAP50_95,notes
+yolo26s,yolo26s_pilot_s_e5_f20,YOLO26s,pilot,0.20,5,704,16,val,0.751,0.512,0.589,0.434,
+yolo26s,yolo26s_pilot_s_e5_f20,YOLO26s,pilot,0.20,5,704,16,test,0.762,0.518,0.601,0.340,
+yolo26n,yolo26n_pilot_n_e5_f20,YOLO26n,pilot,0.20,5,704,16,val,0.726,0.490,0.570,0.409,
+yolo26n,yolo26n_pilot_n_e5_f20,YOLO26n,pilot,0.20,5,704,16,test,0.731,0.495,0.579,0.319,
+yolo26s,yolo26s_moderate_s_e12_f35,YOLO26s,moderate,0.35,12,704,16,val,0.803,0.545,0.633,0.450,
+yolo26s,yolo26s_moderate_s_e12_f35,YOLO26s,moderate,0.35,12,704,16,test,0.804,0.548,0.637,0.398,
+yolo26n,yolo26n_moderate_n_e12_f35,YOLO26n,moderate,0.35,12,704,16,val,0.779,0.514,0.601,0.410,
+yolo26n,yolo26n_moderate_n_e12_f35,YOLO26n,moderate,0.35,12,704,16,test,0.766,0.508,0.597,0.356,
+yolo26s,yolo26s_high_s_e18_f50,YOLO26s,high,0.50,18,768,16,val,0.859,0.611,0.673,0.530,
+yolo26s,yolo26s_high_s_e18_f50,YOLO26s,high,0.50,18,768,16,test,0.841,0.610,0.676,0.495,
+yolo26n,yolo26n_high_n_e18_f50,YOLO26n,high,0.50,18,768,16,val,0.855,0.582,0.653,0.495,
+yolo26n,yolo26n_high_n_e18_f50,YOLO26n,high,0.50,18,768,16,test,0.788,0.580,0.646,0.473,
+rtdetr-l,rtdetr_test_production_e16_f50_b4,RT-DETR-L,arch-explore,0.50,16,768,4,val,0.917,0.591,0.688,0.556,best model so far (50% data)
+rtdetr-l,rtdetr_test_full_e18_f100_b4,RT-DETR-L,full-data,1.00,18,768,4,val,,,,,PENDING - training in progress
+rtdetr-l,rtdetr_test_full_e18_f100_b4,RT-DETR-L,full-data,1.00,18,768,4,test,,,,,PENDING - training in progress

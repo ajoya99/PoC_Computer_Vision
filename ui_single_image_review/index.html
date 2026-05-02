@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CV Single Image Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-theme="blue">
+  <div class="page-shell">
+    <main class="app-frame" aria-label="Single Image Detection UI">
+      <section class="header-card panel">
+        <div class="mini-row">
+          <p class="mini-label">Computer Vision Review</p>
+          <button id="themeToggle" class="theme-circle-btn" type="button" aria-label="Toggle theme">
+            <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+              <path d="M10 2a8 8 0 1 0 0 16A8 8 0 0 0 10 2Zm0 14.5V3.5a6.5 6.5 0 0 1 0 13Z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="header-row">
+          <h1>Single Image Detection</h1>
+        </div>
+        <p class="subtitle">Drop one image, run the latest model, and inspect the output in one focused workspace.</p>
+      </section>
+
+      <section class="controls-card panel" aria-label="Detection controls">
+        <div class="controls-grid">
+          <div class="field">
+            <span class="field-label">Model <span class="field-label-hint">(click to switch)</span></span>
+            <button id="modelToggle" class="model-toggle-btn" type="button" data-model-key="rtdetr">RT-DETR-L</button>
+          </div>
+
+          <div class="field toggle-row">
+            <label class="field toggle-field">
+              <span class="field-label">Labels</span>
+              <button id="labelsToggle" class="toggle-btn" type="button" aria-pressed="true">ON</button>
+            </label>
+            <label class="field toggle-field">
+              <span class="field-label">Confidence</span>
+              <button id="confidenceToggle" class="toggle-btn" type="button" aria-pressed="true">ON</button>
+            </label>
+          </div>
+        </div>
+
+        <div class="conf-section">
+          <p class="conf-section-label">Confidence threshold per class</p>
+          <div class="conf-grid">
+            <div class="conf-row">
+              <span class="conf-class-label">Box</span>
+              <input class="conf-slider" id="conf-box" type="range" min="0.05" max="0.95" step="0.05" value="0.15" data-class="box">
+              <span class="conf-value" id="val-box">0.15</span>
+            </div>
+            <div class="conf-row">
+              <span class="conf-class-label">Pallet</span>
+              <input class="conf-slider" id="conf-pallet" type="range" min="0.05" max="0.95" step="0.05" value="0.55" data-class="pallet">
+              <span class="conf-value" id="val-pallet">0.55</span>
+            </div>
+            <div class="conf-row">
+              <span class="conf-class-label">Person</span>
+              <input class="conf-slider" id="conf-person" type="range" min="0.05" max="0.95" step="0.05" value="0.30" data-class="person">
+              <span class="conf-value" id="val-person">0.30</span>
+            </div>
+            <div class="conf-row">
+              <span class="conf-class-label">Forklift</span>
+              <input class="conf-slider" id="conf-forklift" type="range" min="0.05" max="0.95" step="0.05" value="0.40" data-class="forklift">
+              <span class="conf-value" id="val-forklift">0.40</span>
+            </div>
+            <div class="conf-row">
+              <span class="conf-class-label">Cart</span>
+              <input class="conf-slider" id="conf-cart" type="range" min="0.05" max="0.95" step="0.05" value="0.15" data-class="cart">
+              <span class="conf-value" id="val-cart">0.15</span>
+            </div>
+            <div class="conf-row">
+              <span class="conf-class-label">Wheelchair</span>
+              <input class="conf-slider" id="conf-wheelchair" type="range" min="0.05" max="0.95" step="0.05" value="0.20" data-class="wheelchair">
+              <span class="conf-value" id="val-wheelchair">0.20</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="metrics-row" aria-label="Current status metrics">
+          <article class="metric-pill">
+            <span class="metric-label">Image</span>
+            <strong id="metricImage">Not loaded</strong>
+          </article>
+          <article class="metric-pill">
+            <span class="metric-label">Status</span>
+            <strong id="metricStatus">Waiting</strong>
+          </article>
+          <article class="metric-pill">
+            <span class="metric-label">Detections</span>
+            <strong id="metricDetections">-</strong>
+          </article>
+        </div>
+      </section>
+
+      <section class="content-card panel" aria-label="Image workspace">
+        <div id="dropZone" class="drop-zone" tabindex="0" role="button" aria-label="Drop image or click to choose">
+          <div id="emptyState" class="empty-state">
+            <p class="drop-title">Drag and drop a single image</p>
+            <p class="drop-copy">or tap to browse your files</p>
+          </div>
+          <img id="previewImage" alt="Selected image preview">
+          <div id="overlayInfo" class="overlay-info hidden">Detection overlay will appear here</div>
+        </div>
+      </section>
+
+      <footer class="footer-bar panel" aria-label="Action buttons">
+        <button id="runBtn" class="primary-btn" type="button">Run Detection</button>
+        <button id="clearBtn" class="ghost-btn" type="button">Clear</button>
+        <input id="imageInput" type="file" accept="image/*" hidden>
+      </footer>
+    </main>
+  </div>
+
+  <script src="theme.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

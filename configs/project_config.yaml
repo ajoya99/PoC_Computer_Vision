@@ -1,0 +1,30 @@
+target_classes:
+  - box
+  - pallet
+  - person
+  - forklift
+  - cart
+  - wheelchair
+
+# Any class names in source datasets will be normalized (lowercase + spaces/hyphens to underscores)
+# and mapped using this dictionary. Unmapped classes are ignored.
+class_alias_map:
+  box: box
+  pallet: pallet
+  pallets: pallet
+  person: person
+  forklift: forklift
+  cart: cart
+  wheelchair: wheelchair
+  wheel_chair: wheelchair
+  wheel_chairs: wheelchair
+  push_wheelchair: wheelchair
+
+# Default zip files. You can add more files later without changing code.
+zip_inputs:
+  - data/raw_zips/Logistic.yolo26.zip
+  - data/raw_zips/Mobility Aids.yolo26.zip
+  - data/raw_zips/Warehouse.v1i.yolov8.zip
+  - data/raw_zips/wheelchair.yolo26.zip
+
+output_dataset_dir: data/processed/merged_v1

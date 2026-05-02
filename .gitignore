@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+
+# Data and model artifacts
+data/staging/
+data/processed/
+data/external_scenarios/
+models/
+runs/
+reports/*.json
+reports/*.txt
+
+# Keep zip placeholders if needed
+data/raw_zips/*.zip
+!data/raw_zips/.gitkeep
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Large binary files — tracked via Git LFS (see .gitattributes)
+# Root-level base model weights are committed via LFS, not listed here.
