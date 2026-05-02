@@ -292,10 +292,10 @@
       modelToggle.addEventListener("click", function () {
         currentModelIdx = (currentModelIdx + 1) % MODEL_OPTIONS.length;
         var opt = MODEL_OPTIONS[currentModelIdx];
-        modelToggle.textContent = opt.label + " \u21d5";
+        modelToggle.textContent = opt.label;
         modelToggle.dataset.modelKey = opt.key;
       });
-      modelToggle.textContent = MODEL_OPTIONS[0].label + " \u21d5";
+      modelToggle.textContent = MODEL_OPTIONS[0].label;
     }
 
     initServerConfig();
