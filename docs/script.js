@@ -37,8 +37,11 @@
 
   async function pingServer(url) {
     try {
-      // OPTIONS request is fast and side-effect free
-      var res = await fetch(url + "/detect", { method: "OPTIONS", signal: AbortSignal.timeout(3000) });
+      await fetch(url + "/detect", {
+        method: "OPTIONS",
+        headers: { "ngrok-skip-browser-warning": "1" },
+        signal: AbortSignal.timeout(5000),
+      });
       setServerDot("online");
     } catch (e) {
       setServerDot("offline");
@@ -191,7 +194,7 @@
 
       var response = await fetch(serverUrl + "/detect", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "1" },
         body: JSON.stringify({
           image_b64:  imageB64,
           confidence: minConf,
