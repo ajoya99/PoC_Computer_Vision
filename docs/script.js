@@ -40,7 +40,6 @@
       await fetch(url + "/detect", {
         method: "OPTIONS",
         headers: { "ngrok-skip-browser-warning": "1" },
-        signal: AbortSignal.timeout(5000),
       });
       setServerDot("online");
     } catch (e) {
