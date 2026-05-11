@@ -13,7 +13,7 @@
   // Server URL — persisted in localStorage, configurable from the UI
   // ---------------------------------------------------------------------------
   var SERVER_URL_KEY = "cv-server-url";
-  var DEFAULT_SERVER_URL = "http://127.0.0.1:8765";
+  var DEFAULT_SERVER_URL = "http://localhost:8765";
 
   function getServerUrl() {
     return (localStorage.getItem(SERVER_URL_KEY) || DEFAULT_SERVER_URL).replace(/\/$/, "");

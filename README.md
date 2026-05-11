@@ -47,10 +47,59 @@ PoC_Computer_Vision/
     train_and_evaluate.py      # Train + val + test for yolo26n and yolo26s
     predict_external.py        # Inference on external scenario images
     run_full_pipeline.ps1      # End-to-end automation
+  ui_single_image_review/
+    server.py                  # Local inference server + local UI host (port 8765)
+    server_v2.py               # Alternative server with adaptive annotation scaling
+    index.html                 # Local UI entrypoint
+  docs/
+    index.html                 # GitHub Pages static UI entrypoint
+    script.js                  # Web UI logic (connects to configurable server URL)
   requirements.txt
   .gitignore
   README.md
 ```
+
+## UI Access (Local + Remote)
+
+### Local UI (same machine)
+
+```powershell
+& "c:/Users/alvaro.joya machado/Documents/VS_Code/PoC_Computer_Vision/.venv/Scripts/python.exe" ui_single_image_review/server.py
+```
+
+Open:
+
+1. `http://127.0.0.1:8765/`
+
+### Hosted UI (GitHub Pages)
+
+The static UI is published from `docs/` at:
+
+1. `https://ajoya99.github.io/PoC_Computer_Vision/`
+
+This hosted UI does not run inference by itself; it sends requests to a running backend server URL you provide.
+
+### Remote access from phone (ngrok tunnel)
+
+1. Start local inference server:
+
+```powershell
+& "c:/Users/alvaro.joya machado/Documents/VS_Code/PoC_Computer_Vision/.venv/Scripts/python.exe" ui_single_image_review/server.py
+```
+
+2. Start ngrok tunnel to port 8765:
+
+```powershell
+& "C:/ngrok/ngrok.exe" http 8765
+```
+
+3. Copy the HTTPS public URL from ngrok (for example, `https://xxxx.ngrok-free.dev`)
+4. Open GitHub Pages UI on phone and paste that URL into **Inference Server**, then click **Connect**
+
+Notes:
+
+1. Free ngrok URLs change each time ngrok restarts.
+2. Keep both the Python server and ngrok process running while using the hosted UI.
 
 ## Current Datasets
 

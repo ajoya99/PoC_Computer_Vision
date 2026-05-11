@@ -9,6 +9,59 @@
   ];
   var currentModelIdx = 0;
 
+  var SERVER_URL_KEY = "cv-server-url";
+  var DEFAULT_SERVER_URL = "http://localhost:8765";
+
+  function getServerUrl() {
+    return (localStorage.getItem(SERVER_URL_KEY) || DEFAULT_SERVER_URL).replace(/\/$/, "");
+  }
+
+  function saveServerUrl(url) {
+    var clean = (url || "").trim().replace(/\/$/, "");
+    if (!clean) clean = DEFAULT_SERVER_URL;
+    localStorage.setItem(SERVER_URL_KEY, clean);
+    return clean;
+  }
+
+  function setServerDot(state) {
+    var dot = document.getElementById("serverStatusDot");
+    if (!dot) return;
+    dot.className = "server-status-dot" + (state ? " " + state : "");
+  }
+
+  async function pingServer(url) {
+    try {
+      await fetch(url + "/detect", {
+        method: "OPTIONS",
+        headers: { "ngrok-skip-browser-warning": "1" },
+      });
+      setServerDot("online");
+    } catch (error) {
+      setServerDot("offline");
+    }
+  }
+
+  function initServerConfig() {
+    var input = document.getElementById("serverUrlInput");
+    var btn = document.getElementById("serverSaveBtn");
+    if (!input || !btn) return;
+
+    var saved = getServerUrl();
+    input.value = saved;
+    pingServer(saved);
+
+    btn.addEventListener("click", function () {
+      var url = saveServerUrl(input.value);
+      input.value = url;
+      setServerDot("");
+      pingServer(url);
+    });
+
+    input.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") btn.click();
+    });
+  }
+
   var dropZone;
   var imageInput;
   var previewImage;
@@ -137,7 +190,7 @@
     setStatus("Running...");
     setDetectionCount("...");
     overlayInfo.classList.remove("hidden");
-    overlayInfo.textContent = "Sending image to local model server...";
+    overlayInfo.textContent = "Sending image to inference server...";
     runBtn.disabled = true;
 
     try {
@@ -153,10 +206,14 @@
       // model returns everything above the minimum, then we filter per class.
       var minConf = Math.min.apply(null, Object.values(classConf));
       var modelKey = MODEL_OPTIONS[currentModelIdx].key;
+      var serverUrl = getServerUrl();
 
-      var response = await fetch("http://127.0.0.1:8765/detect", {
+      var response = await fetch(serverUrl + "/detect", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "1",
+        },
         body: JSON.stringify({
           image_b64: imageB64,
           confidence: minConf,
@@ -181,6 +238,7 @@
       var count = typeof result.detections === "number" ? result.detections : 0;
       setDetectionCount(String(count));
       setStatus("Done");
+      setServerDot("online");
 
       var summary = "";
       if (result.items && result.items.length > 0) {
@@ -198,9 +256,10 @@
 
     } catch (error) {
       var msg = error && error.message ? error.message : String(error);
-      if (msg.includes("Failed to fetch") || msg.includes("NetworkError")) {
+      setServerDot("offline");
+      if (msg.includes("Failed to fetch") || msg.includes("NetworkError") || msg.includes("Load failed")) {
         setStatus("Server offline");
-        overlayInfo.textContent = "Start the server first: python ui_single_image_review/server.py";
+        overlayInfo.textContent = "Cannot reach server. Check the URL above or start the server + ngrok.";
       } else {
         setStatus("Error");
         overlayInfo.textContent = "Detection failed: " + msg;
@@ -272,6 +331,7 @@
 
     initSliders();
     initDragAndDrop();
+  initServerConfig();
 
     imageInput.addEventListener("change", onImageChosen);
     runBtn.addEventListener("click", runDetection);

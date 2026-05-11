@@ -25,6 +25,7 @@
 15. [Development Phases Completed](#15-development-phases-completed)
 16. [Glossary](#16-glossary)
 17. [Changelog — Progress Log](#17-changelog--progress-log)
+18. [Web UI Deployment and Remote Access](#18-web-ui-deployment-and-remote-access)
 
 ---
 
@@ -1109,6 +1110,34 @@ Production Deployment:
 
 ---
 
+## 18. Web UI Deployment and Remote Access
+
+### GitHub Repository and Pages
+
+- Repository initialized and pushed to GitHub (`main` branch)
+- GitHub Pages enabled from `main:/docs`
+- Hosted UI URL: `https://ajoya99.github.io/PoC_Computer_Vision/`
+
+### UI Runtime Architecture
+
+- `ui_single_image_review/server.py` runs local inference and can serve UI locally on `127.0.0.1:8765`
+- `docs/index.html` + `docs/script.js` provide static hosted UI on GitHub Pages
+- Hosted UI uses a configurable backend server URL entered by the user at runtime
+
+### Remote Testing via Phone
+
+- ngrok v3 configured and used to expose local port `8765`
+- Hosted UI can connect to ngrok public URL (`https://*.ngrok-free.dev`) from mobile devices
+- CORS updated in `server.py` and `server_v2.py` to allow `ngrok-skip-browser-warning` header for browser preflight compatibility
+
+### UI Reliability Fixes Applied
+
+- Added ngrok warning-bypass request header in hosted UI fetch calls
+- Removed timeout-based connect check that caused false-red status on some browsers
+- Removed helper hint text from the server configuration card per latest UI requirement
+
+---
+
 ## Final Note
 
 This ROADMAP documents a systematic, empirical approach to computer vision model selection under real-world hardware constraints. Rather than theoretical comparisons, the project walks through three complete training phases with progressively larger budgets, allowing fair comparison of small and nano YOLO26 models. Phase 3 (high budget) is complete and provides conclusive evidence for production model selection.
@@ -1119,6 +1148,6 @@ For questions or extensions, refer to [README.md](README.md) for usage instructi
 
 ---
 
-**Last Updated**: April 28, 2026  
-**Current Phase**: RT-DETR full-data training (100% fraction, 18 epochs, in progress)  
-**Next Update**: After RT-DETR full-data run completes + val/test evaluation
+**Last Updated**: May 4, 2026  
+**Current Phase**: RT-DETR full-data tracking + deployed review UI iteration  
+**Next Update**: Add final RT-DETR full-data metrics and deployment benchmark summary

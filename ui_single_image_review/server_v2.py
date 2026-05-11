@@ -5,7 +5,7 @@ Font sizes and box thickness scale based on input image dimensions.
 Usage (from project root):
     python ui_single_image_review/server_v2.py
 
-Serves the UI at http://127.0.0.1:8765/ and handles POST /detect.
+Serves the UI at http://localhost:8765/ and handles POST /detect.
 """
 
 import base64
@@ -20,6 +20,7 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
+DOCS_DIR = ROOT / "docs"
 UI_DIR = Path(__file__).resolve().parent
 
 # Available models: key -> ordered list of candidate paths
@@ -137,10 +138,20 @@ def run_inference(image_bytes: bytes, confidence: float = 0.05,
     print(f"[inference] Image size: {img_width}x{img_height}", flush=True)
 
     print("[inference] Running model.predict()...", flush=True)
+    
+    # Detect device: use GPU if available, otherwise CPU
+    try:
+        import torch
+        device = 0 if torch.cuda.is_available() else "cpu"
+        print(f"[inference] Using device: {device}", flush=True)
+    except Exception as e:
+        print(f"[inference] Error detecting device, falling back to CPU: {e}", flush=True)
+        device = "cpu"
+    
     results = model.predict(
         source=img,
         conf=confidence,
-        device=0,
+        device=device,
         verbose=False,
         save=False,
         stream=False,
@@ -187,9 +198,9 @@ def run_inference(image_bytes: bytes, confidence: float = 0.05,
     print(f"[inference] Adaptive scale: {scale:.2f} (avg_dim={avg_dim:.0f})", flush=True)
     
     # Dynamically sized parameters
-    font_size = max(0.7, 3.5 * scale)
-    font_thickness = max(1, int(5 * scale))
-    box_thickness = max(2, int(8 * scale))
+    font_size = max(0.7, 8.0 * scale)
+    font_thickness = max(2, int(9 * scale))
+    box_thickness = max(3, int(16 * scale))
     text_bg_pad = max(4, int(12 * scale))
     text_vertical_offset = max(2, int(8 * scale))
 
@@ -216,12 +227,16 @@ def run_inference(image_bytes: bytes, confidence: float = 0.05,
     _, buf = cv2.imencode(".jpg", img_bgr, [cv2.IMWRITE_JPEG_QUALITY, 95])
     annotated_b64 = base64.b64encode(buf.tobytes()).decode("ascii")
 
+    # Get model name from MODEL_PATHS
+    model_path = MODEL_PATHS.get(model_key)
+    model_name = model_path.parent.parent.name if model_path else "unknown"
+
     return {
         "detections": len(kept),
         "items": kept,
         "thresholds": class_conf_norm,
         "annotated_image": "data:image/jpeg;base64," + annotated_b64,
-        "model": WEIGHTS_PATH.parent.parent.name if WEIGHTS_PATH else "unknown",
+        "model": model_name,
         "server_version": SERVER_VERSION,
         "scaling_info": {
             "image_width": img_width,
@@ -245,7 +260,9 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Access-Control-Allow-Origin", "*")
+        origin = self.headers.get("Origin", "*")
+        self.send_header("Access-Control-Allow-Origin", origin if origin else "*")
+        self.send_header("Vary", "Origin")
         self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
         self.send_header("Pragma", "no-cache")
         self.send_header("Expires", "0")
@@ -253,9 +270,11 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def send_cors_headers(self):
-        self.send_header("Access-Control-Allow-Origin", "*")
+        origin = self.headers.get("Origin", "*")
+        self.send_header("Access-Control-Allow-Origin", origin if origin else "*")
+        self.send_header("Vary", "Origin")
         self.send_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, ngrok-skip-browser-warning")
         self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
         self.send_header("Pragma", "no-cache")
         self.send_header("Expires", "0")
@@ -266,12 +285,24 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        if self.path in ("/", "/ui_single_image_review/"):
+        clean_path = self.path.split("?")[0]
+        if clean_path in ("/", "/ui_single_image_review/"):
             self._serve_file(UI_DIR / "index.html", "text/html; charset=utf-8")
-        elif self.path.endswith(".css"):
-            self._serve_file(UI_DIR / Path(self.path).name, "text/css; charset=utf-8")
-        elif self.path.endswith(".js"):
-            self._serve_file(UI_DIR / Path(self.path).name, "application/javascript; charset=utf-8")
+        elif clean_path in ("/docs", "/docs/"):
+            self._serve_file(DOCS_DIR / "index.html", "text/html; charset=utf-8")
+        elif clean_path.startswith("/docs/"):
+            name = Path(clean_path[len("/docs/"):]).name
+            fpath = DOCS_DIR / name
+            if clean_path.endswith(".css"):
+                self._serve_file(fpath, "text/css; charset=utf-8")
+            elif clean_path.endswith(".js"):
+                self._serve_file(fpath, "application/javascript; charset=utf-8")
+            else:
+                self.send_response(404); self.end_headers()
+        elif clean_path.endswith(".css"):
+            self._serve_file(UI_DIR / Path(clean_path).name, "text/css; charset=utf-8")
+        elif clean_path.endswith(".js"):
+            self._serve_file(UI_DIR / Path(clean_path).name, "application/javascript; charset=utf-8")
         else:
             self.send_response(404)
             self.end_headers()
@@ -340,7 +371,7 @@ class Handler(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     port = 8765
-    host = "127.0.0.1"
+    host = "localhost"
     try:
         print(f"[server] Single Image Detection server starting...")
         print(f"[server] Source  : {Path(__file__).resolve()}")
@@ -353,6 +384,7 @@ if __name__ == "__main__":
         print(f"[server] Creating HTTPServer on {host}:{port}...", flush=True)
         server = HTTPServer((host, port), Handler)
         print(f"[server] Open    : http://{host}:{port}/", flush=True)
+        print(f"[server] Docs UI : http://localhost:{port}/docs/", flush=True)
         print(f"[server] Press Ctrl+C to stop.", flush=True)
         print(f"[server] Starting serve_forever()...", flush=True)
         server.serve_forever()
